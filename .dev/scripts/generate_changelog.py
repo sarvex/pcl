@@ -114,7 +114,7 @@ def fetch_pr_since(start_date):
     Fetch data of PRs merged after a given start date.
     """
     url = f"https://api.github.com/search/issues?q=is:pr+repo:PointCloudLibrary/pcl+merged:>={start_date}"
-    pr_data = list()
+    pr_data = []
     page = 1
     while True:
         response = requests.get(f"{url}&page={page}&per_page=100")
@@ -161,15 +161,15 @@ def make_pr_bullet_point(pr, prefix=None):
 
     tags = ""
     if prefix in ("modules", "categories"):
-        tags = "".join(["[" + k + "]" for k in pr[prefix]])
+        tags = "".join([f"[{k}]" for k in pr[prefix]])
     if tags:
-        tags = "**" + tags + "** "
+        tags = f"**{tags}** "
 
     return f"* {tags}{pr['title']} [{ref}]"
 
 
 def generate_category_section(key, prs):
-    section = list()
+    section = []
     filtered_prs = [pr for pr in prs if key in pr["categories"]]
     title, description = CATEGORIES[key]
     if filtered_prs and title:
@@ -179,7 +179,7 @@ def generate_category_section(key, prs):
 
 
 def generate_module_section(key, prs):
-    section = list()
+    section = []
     filtered_prs = [pr for pr in prs if key in pr["modules"]]
     title = MODULES[key]
     if filtered_prs and title:
@@ -219,8 +219,8 @@ if __name__ == "__main__":
             with open(args.save, "w") as fp:
                 fp.write(json.dumps(pr_data))
 
-    selected_prs = list()
-    excluded_prs = list()
+    selected_prs = []
+    excluded_prs = []
     for pr in sorted(pr_data, key=lambda d: d["closed_at"]):
         categories = filter_labels(pr["labels"], "changelog: ")
         title = strip_leading_tag(pr["title"])
@@ -235,7 +235,7 @@ if __name__ == "__main__":
         else:  # exclude PRs not tagged with any changelog label
             excluded_prs.append(pr_info)
 
-    clog = list()
+    clog = []
 
     clog += ["\n### Notable changes"]
     for k in CATEGORIES.keys():

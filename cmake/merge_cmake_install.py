@@ -17,20 +17,16 @@ string_to_remove_release = "IF(\"${CMAKE_INSTALL_CONFIG_NAME}\" MATCHES \"^([Rr]
 
 matches = []
 for root, dirnames, filenames in os.walk(base_folder):
-  for filename in fnmatch.filter(filenames, 'cmake_install.cmake'):
-      matches.append(os.path.join(root, filename))
-	  
+  matches.extend(
+      os.path.join(root, filename)
+      for filename in fnmatch.filter(filenames, 'cmake_install.cmake'))
 for one_match in matches:
-	#print one_match, "\n"
-	shutil.move( one_match, one_match+"~" )
-	destination= open( one_match, "w" )
-	source= open( one_match+"~", "r" )
-	for line in source:
-		if string_to_remove_debug in line:
-			destination.write( "\n" )
-		elif string_to_remove_release in line:
-			destination.write( "\n" )
-		else:
-			destination.write( line )
-	source.close()
-	destination.close()
+  	#print one_match, "\n"
+  shutil.move(one_match, f"{one_match}~")
+  with open( one_match, "w" ) as destination:
+    with open(f"{one_match}~", "r") as source:
+      for line in source:
+        if string_to_remove_debug in line or string_to_remove_release in line:
+          destination.write( "\n" )
+        else:
+          destination.write( line )
